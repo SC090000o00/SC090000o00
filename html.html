@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mango vs Mustard — Simple Vote</title>
+  <title>Mango vs Mustard — Vote</title>
   <style>
     :root{
       --bg:#f6f7fb;
@@ -74,29 +74,8 @@
     .btn:active{ transform:translateY(1px) }
     .mango { background:linear-gradient(90deg,#ffd37a,#ffb74d); color:#2b1a00; }
     .mustard { background:linear-gradient(90deg,#f9e79f,#f4c542); color:#2b1a00; }
-    .meta{
-      margin-top:14px;
-      font-size:13px;
-      color:#6b7280;
-    }
-    .controls{
-      grid-column:1 / -1;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      margin-top:6px;
-    }
-    .small{
-      background:transparent;
-      border:1px solid rgba(16,24,40,0.06);
-      padding:8px 12px;
-      border-radius:10px;
-      cursor:pointer;
-      font-size:13px;
-    }
     @media (max-width:700px){
       .wrap{ grid-template-columns:1fr; }
-      .controls{ flex-direction:column-reverse; align-items:stretch; }
     }
   </style>
 </head>
@@ -107,7 +86,6 @@
       <div class="percent" id="mangoPct">0%</div>
       <div class="count" id="mangoCount">0 votes</div>
       <button class="btn mango" id="mangoBtn" aria-label="Vote for Mango">Vote Mango 🥭</button>
-      <div class="meta">Click to add a vote. Votes stored in your browser.</div>
     </section>
 
     <section class="card" id="mustardCard" aria-labelledby="mustardTitle">
@@ -115,23 +93,11 @@
       <div class="percent" id="mustardPct">0%</div>
       <div class="count" id="mustardCount">0 votes</div>
       <button class="btn mustard" id="mustardBtn" aria-label="Vote for Mustard">Vote Mustard 🌭</button>
-      <div class="meta">Click to add a vote. Votes stored in your browser.</div>
     </section>
-
-    <div class="controls">
-      <div style="display:flex;gap:10px;align-items:center">
-        <button class="small" id="resetBtn" title="Reset local counts">Reset (local)</button>
-        <button class="small" id="zeroBtn" title="Zero both counts">Zero Both</button>
-      </div>
-      <div style="text-align:right;color:#6b7280;font-size:13px">
-        <div>Total votes: <span id="totalVotes">0</span></div>
-        <div style="margin-top:6px">Tip: Save the file as <code>index.html</code> and publish via GitHub Pages to embed in Google Sites.</div>
-      </div>
-    </div>
   </main>
 
   <script>
-    // Keys in localStorage
+    // localStorage keys
     const KEY_M = 'poll_mango_count_v1';
     const KEY_U = 'poll_mustard_count_v1';
 
@@ -140,19 +106,13 @@
     const mustardPctEl = document.getElementById('mustardPct');
     const mangoCountEl = document.getElementById('mangoCount');
     const mustardCountEl = document.getElementById('mustardCount');
-    const totalVotesEl = document.getElementById('totalVotes');
     const mangoBtn = document.getElementById('mangoBtn');
     const mustardBtn = document.getElementById('mustardBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const zeroBtn = document.getElementById('zeroBtn');
 
-    // read integer from storage or 0
-    function readCount(key){ return parseInt(localStorage.getItem(key) || '0', 10) }
+    // helpers
+    function readCount(key){ return parseInt(localStorage.getItem(key) || '0', 10); }
+    function writeCount(key, value){ localStorage.setItem(key, String(value)); }
 
-    // write count
-    function writeCount(key, value){ localStorage.setItem(key, String(value)) }
-
-    // update UI
     function updateUI(){
       const m = readCount(KEY_M);
       const u = readCount(KEY_U);
@@ -164,18 +124,15 @@
       mustardPctEl.textContent = uPct + '%';
       mangoCountEl.textContent = m + (m === 1 ? ' vote' : ' votes');
       mustardCountEl.textContent = u + (u === 1 ? ' vote' : ' votes');
-      totalVotesEl.textContent = total;
     }
 
-    // increment functions
     function voteMango(){ writeCount(KEY_M, readCount(KEY_M) + 1); updateUI(); }
     function voteMustard(){ writeCount(KEY_U, readCount(KEY_U) + 1); updateUI(); }
 
-    // attach events
     mangoBtn.addEventListener('click', voteMango);
     mustardBtn.addEventListener('click', voteMustard);
 
-    // keyboard accessibility (Enter/Space) for buttons
+    // keyboard accessibility
     [mangoBtn, mustardBtn].forEach(btn=>{
       btn.addEventListener('keydown', (e)=>{
         if(e.key === 'Enter' || e.key === ' '){
@@ -185,23 +142,7 @@
       });
     });
 
-    // reset only for this browser (clears storage keys)
-    resetBtn.addEventListener('click', ()=>{
-      if(!confirm('Reset your local vote counts? This only affects your browser.')) return;
-      localStorage.removeItem(KEY_M);
-      localStorage.removeItem(KEY_U);
-      updateUI();
-    });
-
-    // zero both (sets both to 0)
-    zeroBtn.addEventListener('click', ()=>{
-      if(!confirm('Set both counts to zero in your browser?')) return;
-      writeCount(KEY_M, 0);
-      writeCount(KEY_U, 0);
-      updateUI();
-    });
-
-    // initialize UI on load
+    // initialize
     updateUI();
   </script>
 </body>
